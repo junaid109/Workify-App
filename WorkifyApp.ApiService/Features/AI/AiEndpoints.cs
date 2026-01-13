@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Agents;
+using Microsoft.SemanticKernel.Agents.Chat;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using WorkifyApp.ApiService.Data;
@@ -20,25 +22,50 @@ public static class AiEndpoints
 
     static async Task<Ok<string>> ChatAsync([FromBody] ChatRequest request, WorkifyDbContext db, Kernel kernel)
     {
-        // Import the plugin with the current scoped DbContext
+        // 1. Prepare Kernel with Plugins
         kernel.ImportPluginFromObject(new WorkifyDataPlugin(db), "WorkifyData");
 
-        // Enable auto-invocation of functions
-        OpenAIPromptExecutionSettings settings = new()
+        // 2. Create Agents
+        var analyst = WorkifyAgents.CreateAnalystAgent(kernel);
+        var manager = WorkifyAgents.CreateReviewerAgent(kernel);
+
+        // 3. Create Agent Group Chat
+        // The flow is: User -> Analyst -> Manager -> Termination
+        AgentGroupChat chat = new(analyst, manager)
         {
-            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
+            ExecutionSettings = new()
+            {
+                // Stop after the manager speaks
+                TerminationStrategy = new ApprovalTerminationStrategy()
+                {
+                    Agents = [manager],
+                    MaximumIterations = 5
+                }
+            }
         };
 
-        var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
-        var history = new ChatHistory();
-        history.AddUserMessage(request.Message);
+        // 4. Run the chat
+        chat.AddChatMessage(new ChatMessageContent(AuthorRole.User, request.Message));
 
-        var result = await chatCompletionService.GetChatMessageContentAsync(
-            history,
-            executionSettings: settings,
-            kernel: kernel);
+        var lastResponse = string.Empty;
+        await foreach (var content in chat.InvokeAsync())
+        {
+            if (content.AuthorName == manager.Name)
+            {
+                lastResponse = content.Content ?? "";
+            }
+        }
 
-        return TypedResults.Ok(result.Content ?? "");
+        return TypedResults.Ok(lastResponse);
+    }
+}
+
+public class ApprovalTerminationStrategy : TerminationStrategy
+{
+    protected override Task<bool> ShouldAgentTerminateAsync(Agent agent, IReadOnlyList<ChatMessageContent> history, CancellationToken cancellationToken)
+    {
+        // Terminate immediately after the Manager (Reviewer) speaks
+        return Task.FromResult(agent.Name == "Manager");
     }
 }
 
