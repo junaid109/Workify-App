@@ -1,0 +1,90 @@
+@page "/chat"
+@using WorkifyApp.Web.Services
+@inject WorkifyApiClient Api
+@inject IJSRuntime JS
+
+<RadzenStack Style="height: calc(100vh - 100px);">
+    <RadzenText TextStyle="TextStyle.DisplayH5" class="text-white mb-3">
+        <RadzenIcon Icon="smart_toy" /> Workify AI Analyst
+    </RadzenText>
+
+    <RadzenCard Style="flex: 1; display: flex; flex-direction: column; background-color: #1e1e1e; border: 1px solid #333; overflow: hidden;">
+        <div id="chat-container" class="p-3" style="flex: 1; overflow-y: auto;">
+            @foreach (var msg in _messages)
+            {
+                <div class="d-flex mb-3 @(msg.IsUser ? "justify-content-end" : "justify-content-start")">
+                    <div class="p-3 rounded" style="max-width: 75%; background-color: @(msg.IsUser ? "#4b39ef" : "#2a2a35"); color: white;">
+                        @if (!msg.IsUser)
+                        {
+                             <div class="mb-1 text-white-50 small">
+                                 <RadzenIcon Icon="smart_toy" Style="font-size: 12px;" /> Analyst
+                             </div>
+                        }
+                        <div style="white-space: pre-wrap;">@msg.Content</div>
+                    </div>
+                </div>
+            }
+            @if (_isLoading)
+            {
+                <div class="d-flex justify-content-start mb-3">
+                    <div class="p-3 rounded" style="background-color: #2a2a35; color: white;">
+                        <RadzenProgressBarCircular Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.Small" />
+                        <span class="ms-2">Analyzing data...</span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="p-3" style="background-color: #2a2a35; border-top: 1px solid #444;">
+            <div class="d-flex gap-2">
+                <RadzenTextBox Placeholder="Ask about projects, revenue, or clients..." @bind-Value="_currentMessage" 
+                              Style="flex: 1; background-color: #1e1e24; color: white; border: none;" 
+                              @onkeydown="@HandleEnter" />
+                <RadzenButton Icon="send" Click="@SendMessage" ButtonStyle="ButtonStyle.Primary" Disabled="@_isLoading" />
+            </div>
+        </div>
+    </RadzenCard>
+</RadzenStack>
+
+@code {
+    class ChatMessage { public string Content { get; set; } public bool IsUser { get; set; } }
+    List<ChatMessage> _messages = new();
+    string _currentMessage = "";
+    bool _isLoading = false;
+
+    protected override void OnInitialized()
+    {
+        _messages.Add(new ChatMessage { Content = "Hello! I'm your Workify Data Analyst. Ask me about budget overruns or client history.", IsUser = false });
+    }
+
+    async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(_currentMessage) || _isLoading) return;
+
+        var msgText = _currentMessage;
+        _currentMessage = "";
+        _messages.Add(new ChatMessage { Content = msgText, IsUser = true });
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await Api.ChatAsync(msgText);
+            _messages.Add(new ChatMessage { Content = response, IsUser = false });
+        }
+        catch (Exception ex)
+        {
+            _messages.Add(new ChatMessage { Content = "Error: " + ex.Message, IsUser = false });
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task HandleEnter(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter") await SendMessage();
+    }
+}

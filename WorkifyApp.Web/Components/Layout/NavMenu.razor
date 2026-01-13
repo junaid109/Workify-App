@@ -1,28 +1,36 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿<div class="top-row ps-3 navbar navbar-dark bg-dark border-bottom border-secondary">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">WorkifyApp</a>
+        <a class="navbar-brand text-light" href="">
+            <RadzenIcon Icon="grid_view" Style="vertical-align: middle; margin-right: 8px;" /> Workify
+        </a>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable bg-dark">
     <nav class="nav flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
+            <NavLink class="nav-link text-light" href="" Match="NavLinkMatch.All">
+                <RadzenIcon Icon="dashboard" Style="margin-right: 8px;" /> Dashboard
             </NavLink>
         </div>
-
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link text-light" href="projects">
+                <RadzenIcon Icon="assignment" Style="margin-right: 8px;" /> Projects (Kanban)
             </NavLink>
         </div>
-
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link text-light" href="clients">
+                <RadzenIcon Icon="people" Style="margin-right: 8px;" /> Clients
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link text-light" href="invoices">
+                <RadzenIcon Icon="receipt" Style="margin-right: 8px;" /> Invoices
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link text-light" href="chat">
+                <RadzenIcon Icon="smart_toy" Style="margin-right: 8px;" /> AI Analyst
             </NavLink>
         </div>
     </nav>

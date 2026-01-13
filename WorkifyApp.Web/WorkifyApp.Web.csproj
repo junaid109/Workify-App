@@ -10,4 +10,8 @@
     <ProjectReference Include="..\WorkifyApp.ServiceDefaults\WorkifyApp.ServiceDefaults.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Radzen.Blazor" Version="8.6.0" />
+  </ItemGroup>
+
 </Project>

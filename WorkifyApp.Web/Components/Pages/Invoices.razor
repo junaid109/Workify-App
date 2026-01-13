@@ -1,0 +1,44 @@
+@page "/invoices"
+@using WorkifyApp.ApiService.Domain
+@using WorkifyApp.Web.Services
+@inject WorkifyApiClient Api
+
+<RadzenStack>
+    <RadzenText TextStyle="TextStyle.DisplayH4" TagName="TagName.H1" class="text-white mb-4">Invoicing & Billing</RadzenText>
+
+    <RadzenCard Style="background-color: #1e1e1e;">
+        <RadzenDataGrid Data="@_invoices" TItem="Invoice" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="10"
+                        Style="background-color: transparent; color: white;">
+            <Columns>
+                <RadzenDataGridColumn TItem="Invoice" Property="Id" Title="Invoice #" Width="120px">
+                    <Template Context="i">#@i.Id.ToString().Substring(0, 8)</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Invoice" Property="Client.Name" Title="Client" />
+                <RadzenDataGridColumn TItem="Invoice" Property="InvoiceDate" Title="Date" FormatString="{0:d}" />
+                <RadzenDataGridColumn TItem="Invoice" Property="DueDate" Title="Due" FormatString="{0:d}" />
+                <RadzenDataGridColumn TItem="Invoice" Property="TotalAmount" Title="Amount">
+                    <Template Context="i">@i.TotalAmount.ToString("C")</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Invoice" Property="Status" Title="Status">
+                     <Template Context="i">
+                        <RadzenBadge BadgeStyle="@(i.Status == InvoiceStatus.Paid ? BadgeStyle.Success : BadgeStyle.Warning)" Text="@i.Status.ToString()" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Invoice" Title="Actions">
+                    <Template Context="i">
+                        <RadzenButton Icon="picture_as_pdf" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Tooltip="Download PDF" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </RadzenCard>
+</RadzenStack>
+
+@code {
+    List<Invoice> _invoices = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _invoices = await Api.GetInvoicesAsync();
+    }
+}

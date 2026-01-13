@@ -1,7 +1,103 @@
 ﻿@page "/"
+@using WorkifyApp.ApiService.Domain
+@using WorkifyApp.Web.Services
+@inject WorkifyApiClient Api
+@inject NavigationManager Navigation
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Workify Dashboard</PageTitle>
 
-<h1>Hello, world!</h1>
+<RadzenStack>
+    <RadzenText TextStyle="TextStyle.DisplayH4" TagName="TagName.H1" class="mb-4 text-white">
+        Executive Dashboard
+    </RadzenText>
 
-Welcome to your new app.
+    <RadzenRow>
+        <RadzenColumn Size="12" SizeMD="4">
+            <RadzenCard Style="background: linear-gradient(135deg, #1e1e24 0%, #2a2a35 100%); border: none; color: white;">
+                <RadzenText TextStyle="TextStyle.H6">Total Revenue</RadzenText>
+                <RadzenText TextStyle="TextStyle.DisplayH3" class="text-success">$@_totalRevenue.ToString("N0")</RadzenText>
+                <RadzenText TextStyle="TextStyle.Caption">Month to Date</RadzenText>
+            </RadzenCard>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="4">
+            <RadzenCard Style="background: linear-gradient(135deg, #1e1e24 0%, #2a2a35 100%); border: none; color: white;">
+                <RadzenText TextStyle="TextStyle.H6">Active Projects</RadzenText>
+                <RadzenText TextStyle="TextStyle.DisplayH3" class="text-info">@_activeProjects</RadzenText>
+                <RadzenText TextStyle="TextStyle.Caption">Currently In Progress</RadzenText>
+            </RadzenCard>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="4">
+            <RadzenCard Style="background: linear-gradient(135deg, #1e1e24 0%, #2a2a35 100%); border: none; color: white;">
+                <RadzenText TextStyle="TextStyle.H6">Pending Invoices</RadzenText>
+                <RadzenText TextStyle="TextStyle.DisplayH3" class="text-warning">@_pendingInvoices</RadzenText>
+                <RadzenText TextStyle="TextStyle.Caption">Need Attention</RadzenText>
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenRow Class="mt-5">
+        <RadzenColumn Size="12" SizeLG="8">
+            <RadzenCard Style="background-color: #1e1e1e; border: 1px solid #333;">
+                <RadzenText TextStyle="TextStyle.H5" class="mb-3 text-white">Revenue Trends</RadzenText>
+                <RadzenChart ColorScheme="ColorScheme.Monochrome">
+                    <RadzenLineSeries Smooth="true" Data="@_revenueData" CategoryProperty="Date" Title="Revenue" LineType="LineType.Solid" ValueProperty="Amount">
+                        <RadzenMarkers MarkerType="MarkerType.Circle" />
+                        <RadzenSeriesDataLabels Visible="false" />
+                    </RadzenLineSeries>
+                    <RadzenCategoryAxis Padding="20" />
+                    <RadzenValueAxis>
+                        <RadzenGridLines Visible="true" Stroke="#333" />
+                        <RadzenAxisTitle Text="Amount (USD)" />
+                    </RadzenValueAxis>
+                </RadzenChart>
+            </RadzenCard>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeLG="4">
+            <RadzenCard Style="background-color: #1e1e1e; border: 1px solid #333;">
+                <RadzenText TextStyle="TextStyle.H5" class="mb-3 text-white">Project Status</RadzenText>
+                <RadzenPieChart Data="@_projectStatusData" Title="Projects" CategoryProperty="Status" ValueProperty="Count" />
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>
+
+@code {
+    decimal _totalRevenue = 0;
+    int _activeProjects = 0;
+    int _pendingInvoices = 0;
+
+    class RevenueItem { public string Date { get; set; } public decimal Amount { get; set; } }
+    class StatusItem { public string Status { get; set; } public int Count { get; set; } }
+
+    List<RevenueItem> _revenueData = new();
+    List<StatusItem> _projectStatusData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch real data
+        var projects = await Api.GetProjectsAsync();
+        var invoices = await Api.GetInvoicesAsync();
+
+        _activeProjects = projects.Count(p => p.Status == ProjectStatus.InProgress);
+        _pendingInvoices = invoices.Count(i => i.Status == InvoiceStatus.Sent); // Assuming Sent is pending
+        _totalRevenue = invoices.Sum(i => i.TotalAmount);
+
+        // Mock chart data for visualization (since db is likely empty)
+        _revenueData = new List<RevenueItem>
+        {
+            new() { Date = "Jan", Amount = 15000 },
+            new() { Date = "Feb", Amount = 22000 },
+            new() { Date = "Mar", Amount = 18000 },
+            new() { Date = "Apr", Amount = 35000 },
+            new() { Date = "May", Amount = 28000 },
+            new() { Date = "Jun", Amount = _totalRevenue > 0 ? _totalRevenue : 42000 }
+        };
+
+        _projectStatusData = new List<StatusItem>
+        {
+            new() { Status = "Active", Count = _activeProjects > 0 ? _activeProjects : 5 },
+            new() { Status = "Completed", Count = projects.Count(p => p.Status == ProjectStatus.Completed) > 0 ? projects.Count(p => p.Status == ProjectStatus.Completed) : 12 },
+            new() { Status = "On Hold", Count = 3 }
+        };
+    }
+}

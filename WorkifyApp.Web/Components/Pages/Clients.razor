@@ -1,0 +1,40 @@
+@page "/clients"
+@using WorkifyApp.ApiService.Domain
+@using WorkifyApp.Web.Services
+@inject WorkifyApiClient Api
+
+<RadzenStack>
+    <RadzenText TextStyle="TextStyle.DisplayH4" TagName="TagName.H1" class="text-white mb-4">Client CRM</RadzenText>
+
+    <RadzenCard Style="background-color: #1e1e1e;">
+        <RadzenDataGrid Data="@_clients" TItem="Client" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="10"
+                        Style="background-color: transparent; color: white;">
+            <Columns>
+                <RadzenDataGridColumn TItem="Client" Property="Name" Title="Name" />
+                <RadzenDataGridColumn TItem="Client" Property="CompanyName" Title="Company" />
+                <RadzenDataGridColumn TItem="Client" Property="Email" Title="Email" />
+                <RadzenDataGridColumn TItem="Client" Property="Phone" Title="Phone" />
+                <RadzenDataGridColumn TItem="Client" Title="Actions">
+                    <Template Context="client">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Class="me-1" />
+                        <RadzenButton Icon="history" ButtonStyle="ButtonStyle.Info" Size="ButtonSize.Small" Tooltip="View History" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </RadzenCard>
+</RadzenStack>
+
+@code {
+    List<Client> _clients = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _clients = await Api.GetClientsAsync();
+        if (!_clients.Any())
+        {
+            _clients.Add(new Client { Name = "John Smith", CompanyName = "Acme Corp", Email = "john@acme.com", Phone = "555-0100" });
+            _clients.Add(new Client { Name = "Sara Conner", CompanyName = "Cyberdyne", Email = "sara@cyberdyne.net", Phone = "555-0199" });
+        }
+    }
+}

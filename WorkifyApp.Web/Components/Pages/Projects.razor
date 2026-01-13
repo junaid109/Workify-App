@@ -1,0 +1,132 @@
+@page "/projects"
+@using WorkifyApp.ApiService.Domain
+@using WorkifyApp.Web.Services
+@inject WorkifyApiClient Api
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Class="mb-4">
+        <RadzenText TextStyle="TextStyle.DisplayH4" TagName="TagName.H1" class="text-white">Project Management</RadzenText>
+        <RadzenButton Icon="add" Text="New Project" ButtonStyle="ButtonStyle.Primary" Click="@OpenNewProjectDialog" />
+    </RadzenRow>
+
+    <RadzenTabs RenderMode="TabRenderMode.Client">
+        <Tabs>
+            <RadzenTabsItem Text="Kanban Board">
+                <div class="kanban-board d-flex gap-4 overflow-auto p-2" style="min-height: 600px;">
+                    @foreach (var status in new[] { ProjectStatus.NotStarted, ProjectStatus.InProgress, ProjectStatus.Completed })
+                    {
+                        <div class="kanban-column flex-shrink-0" style="width: 350px; background-color: #1e1e1e; border-radius: 8px; padding: 1rem;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <RadzenText TextStyle="TextStyle.H6" class="m-0 text-white">@SplitCamelCase(status.ToString())</RadzenText>
+                                <RadzenBadge BadgeStyle="@GetBadgeStyle(status)" Text="@_projects.Count(p => p.Status == status).ToString()" />
+                            </div>
+                            
+                            <RadzenStack Gap="1rem">
+                                @foreach (var project in _projects.Where(p => p.Status == status))
+                                {
+                                    <RadzenCard Style="cursor: pointer; background-color: #2a2a35; color: white; border: 1px solid #444;" Class="hover-elevate">
+                                        <RadzenText TextStyle="TextStyle.Subtitle2" class="mb-1 text-info">@project.Client?.Name</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body1" Style="font-weight: bold;">@project.Name</RadzenText>
+                                        <div class="d-flex justify-content-between mt-3">
+                                            <RadzenText TextStyle="TextStyle.Caption" class="text-white-50">Budget: @project.Budget.ToString("C0")</RadzenText>
+                                            <RadzenText TextStyle="TextStyle.Caption" class="text-white-50">@project.EndDate?.ToString("MMM dd")</RadzenText>
+                                        </div>
+                                    </RadzenCard>
+                                }
+                            </RadzenStack>
+                        </div>
+                    }
+                </div>
+            </RadzenTabsItem>
+            
+            <RadzenTabsItem Text="Gantt Timeline">
+                <RadzenCard Style="background-color: #1e1e1e;">
+                    <RadzenText TextStyle="TextStyle.Body1" class="text-white-50 mb-3">Timeline view of all active projects.</RadzenText>
+                    <!-- Simple Mock Gantt since generic Gantt requires complex setup -->
+                    <RadzenDataGrid Data="@_projects" TItem="Project" AllowSorting="true" AllowPaging="true" PageSize="10" 
+                                   Style="background-color: transparent; color: white;">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Project" Property="Name" Title="Project" />
+                            <RadzenDataGridColumn TItem="Project" Property="StartDate" Title="Start" FormatString="{0:d}" />
+                            <RadzenDataGridColumn TItem="Project" Property="EndDate" Title="End" FormatString="{0:d}" />
+                            <RadzenDataGridColumn TItem="Project" Property="Status" Title="Status">
+                                <Template Context="p">
+                                    <RadzenBadge BadgeStyle="@GetBadgeStyle(p.Status)" Text="@p.Status.ToString()" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Project" Title="Timeline Valid">
+                                <Template Context="p">
+                                     <RadzenProgressBar Value="100" ShowValue="false" Style="height: 6px;" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </RadzenCard>
+            </RadzenTabsItem>
+        </Tabs>
+    </RadzenTabs>
+</RadzenStack>
+
+@code {
+    List<Project> _projects = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _projects = await Api.GetProjectsAsync();
+        
+        // Mock data if empty
+        if (!_projects.Any())
+        {
+            _projects.Add(new Project { 
+                Name = "Workify ERP V1", 
+                Description = "Core system build", 
+                Status = ProjectStatus.InProgress,
+                Budget = 50000,
+                StartDate = DateTimeOffset.Now.AddDays(-10),
+                EndDate = DateTimeOffset.Now.AddDays(20),
+                Client = new Client { Name = "Acme Corp" }
+            });
+            _projects.Add(new Project { 
+                Name = "Mobile App Design", 
+                Description = "UX Research", 
+                Status = ProjectStatus.NotStarted,
+                Budget = 12000,
+                StartDate = DateTimeOffset.Now.AddDays(5),
+                EndDate = DateTimeOffset.Now.AddDays(15),
+                Client = new Client { Name = "Stark Ind" }
+            });
+             _projects.Add(new Project { 
+                Name = "Marketing Website", 
+                Description = "Landing page", 
+                Status = ProjectStatus.Completed,
+                Budget = 8000,
+                StartDate = DateTimeOffset.Now.AddDays(-30),
+                EndDate = DateTimeOffset.Now.AddDays(-5),
+                Client = new Client { Name = "Wayne Ent" }
+            });
+        }
+    }
+
+    async Task OpenNewProjectDialog()
+    {
+        // Placeholder for Dialog
+        await DialogService.Alert("Create Project Dialog Placeholder", "Coming Soon");
+    }
+
+    BadgeStyle GetBadgeStyle(ProjectStatus status) => status switch
+    {
+        ProjectStatus.Completed => BadgeStyle.Success,
+        ProjectStatus.InProgress => BadgeStyle.Info,
+        ProjectStatus.NotStarted => BadgeStyle.Secondary,
+        _ => BadgeStyle.Light
+    };
+
+    string SplitCamelCase(string input) => System.Text.RegularExpressions.Regex.Replace(input, "(\\B[A-Z])", " $1");
+}
+
+<style>
+    .hover-elevate { transition: transform 0.2s; }
+    .hover-elevate:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+</style>
