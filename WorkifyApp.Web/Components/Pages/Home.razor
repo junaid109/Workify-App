@@ -1,88 +1,120 @@
 ﻿@page "/"
-@using WorkifyApp.ApiService.Domain
+@using WorkifyApp.Shared.Domain
 @using WorkifyApp.Web.Services
+@using Radzen.Blazor
+
 @inject WorkifyApiClient Api
 @inject NavigationManager Navigation
 
 <PageTitle>Workify Dashboard</PageTitle>
 
-<RadzenStack>
-    <RadzenText TextStyle="TextStyle.DisplayH4" TagName="TagName.H1" class="mb-4 text-white">
-        Executive Dashboard
-    </RadzenText>
+<div style="max-width: 1400px; margin: 0 auto;">
+    
+    <!-- Welcome Header -->
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-weight: 700; color: var(--wf-text); margin-bottom: 0.5rem;">Good afternoon, Team! ☀️</h1>
+        <p style="color: var(--wf-text-secondary); font-size: 1.1rem;">Here's what's happening in your workspace today.</p>
+    </div>
 
-    <RadzenRow>
-        <RadzenColumn Size="12" SizeMD="4">
-            <RadzenCard Style="background: linear-gradient(135deg, #1e1e24 0%, #2a2a35 100%); border: none; color: white;">
-                <RadzenText TextStyle="TextStyle.H6">Total Revenue</RadzenText>
-                <RadzenText TextStyle="TextStyle.DisplayH3" class="text-success">$@_totalRevenue.ToString("N0")</RadzenText>
-                <RadzenText TextStyle="TextStyle.Caption">Month to Date</RadzenText>
-            </RadzenCard>
-        </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="4">
-            <RadzenCard Style="background: linear-gradient(135deg, #1e1e24 0%, #2a2a35 100%); border: none; color: white;">
-                <RadzenText TextStyle="TextStyle.H6">Active Projects</RadzenText>
-                <RadzenText TextStyle="TextStyle.DisplayH3" class="text-info">@_activeProjects</RadzenText>
-                <RadzenText TextStyle="TextStyle.Caption">Currently In Progress</RadzenText>
-            </RadzenCard>
-        </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="4">
-            <RadzenCard Style="background: linear-gradient(135deg, #1e1e24 0%, #2a2a35 100%); border: none; color: white;">
-                <RadzenText TextStyle="TextStyle.H6">Pending Invoices</RadzenText>
-                <RadzenText TextStyle="TextStyle.DisplayH3" class="text-warning">@_pendingInvoices</RadzenText>
-                <RadzenText TextStyle="TextStyle.Caption">Need Attention</RadzenText>
-            </RadzenCard>
-        </RadzenColumn>
-    </RadzenRow>
+    <!-- Stats Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Card 1 -->
+        <div class="wf-card" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="color: var(--wf-text-secondary); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Total Revenue</div>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--wf-text); margin: 0.5rem 0;">$@_totalRevenue.ToString("N0")</div>
+                <div class="wf-badge" style="background-color: rgba(0, 200, 117, 0.2); color: var(--wf-green);">+12% this week</div>
+            </div>
+            <div style="width: 60px; height: 60px; background: rgba(0, 200, 117, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="material-icons" style="font-size: 32px; color: var(--wf-green);">attach_money</i>
+            </div>
+        </div>
 
-    <RadzenRow Class="mt-5">
-        <RadzenColumn Size="12" SizeLG="8">
-            <RadzenCard Style="background-color: #1e1e1e; border: 1px solid #333;">
-                <RadzenText TextStyle="TextStyle.H5" class="mb-3 text-white">Revenue Trends</RadzenText>
-                <RadzenChart ColorScheme="ColorScheme.Monochrome">
-                    <RadzenLineSeries Smooth="true" Data="@_revenueData" CategoryProperty="Date" Title="Revenue" LineType="LineType.Solid" ValueProperty="Amount">
-                        <RadzenMarkers MarkerType="MarkerType.Circle" />
-                        <RadzenSeriesDataLabels Visible="false" />
-                    </RadzenLineSeries>
-                    <RadzenCategoryAxis Padding="20" />
-                    <RadzenValueAxis>
-                        <RadzenGridLines Visible="true" Stroke="#333" />
-                        <RadzenAxisTitle Text="Amount (USD)" />
-                    </RadzenValueAxis>
-                </RadzenChart>
-            </RadzenCard>
-        </RadzenColumn>
-        <RadzenColumn Size="12" SizeLG="4">
-            <RadzenCard Style="background-color: #1e1e1e; border: 1px solid #333;">
-                <RadzenText TextStyle="TextStyle.H5" class="mb-3 text-white">Project Status</RadzenText>
-                <RadzenPieChart Data="@_projectStatusData" Title="Projects" CategoryProperty="Status" ValueProperty="Count" />
-            </RadzenCard>
-        </RadzenColumn>
-    </RadzenRow>
-</RadzenStack>
+        <!-- Card 2 -->
+        <div class="wf-card" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="color: var(--wf-text-secondary); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Active Projects</div>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--wf-text); margin: 0.5rem 0;">@_activeProjects</div>
+                <div class="wf-badge" style="background-color: rgba(0, 133, 255, 0.2); color: var(--wf-blue);">@_activeProjects in progress</div>
+            </div>
+            <div style="width: 60px; height: 60px; background: rgba(0, 133, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                 <i class="material-icons" style="font-size: 32px; color: var(--wf-blue);">work</i>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="wf-card" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="color: var(--wf-text-secondary); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Pending Invoices</div>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--wf-text); margin: 0.5rem 0;">@_pendingInvoices</div>
+                <div class="wf-badge" style="background-color: rgba(253, 171, 61, 0.2); color: var(--wf-yellow);">Action Needed</div>
+            </div>
+            <div style="width: 60px; height: 60px; background: rgba(253, 171, 61, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                 <i class="material-icons" style="font-size: 32px; color: var(--wf-yellow);">priority_high</i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+        <div class="wf-card">
+            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;">Revenue Trends</h3>
+            <RadzenChart ColorScheme="ColorScheme.Palette"> <!-- Use Palette for colors -->
+                <RadzenLineSeries Smooth="true" Data="@_revenueData" CategoryProperty="Date" Title="Revenue" LineType="LineType.Solid" ValueProperty="Amount">
+                    <RadzenMarkers MarkerType="MarkerType.Circle" />
+                </RadzenLineSeries>
+                <RadzenCategoryAxis Padding="20" />
+                <RadzenValueAxis>
+                    <RadzenGridLines Visible="true" Stroke="#e0e0e0" />
+                </RadzenValueAxis>
+            </RadzenChart>
+        </div>
+
+        <div class="wf-card">
+            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;">Project Status</h3>
+            <RadzenPieChart Data="@_projectStatusData" Title="Projects" CategoryProperty="Status" ValueProperty="Count" />
+        </div>
+    </div>
+</div>
 
 @code {
     decimal _totalRevenue = 0;
     int _activeProjects = 0;
     int _pendingInvoices = 0;
 
-    class RevenueItem { public string Date { get; set; } public decimal Amount { get; set; } }
-    class StatusItem { public string Status { get; set; } public int Count { get; set; } }
+    class RevenueItem { public required string Date { get; set; } public decimal Amount { get; set; } }
+    class StatusItem { public required string Status { get; set; } public int Count { get; set; } }
 
     List<RevenueItem> _revenueData = new();
     List<StatusItem> _projectStatusData = new();
 
     protected override async Task OnInitializedAsync()
     {
-        // Fetch real data
-        var projects = await Api.GetProjectsAsync();
-        var invoices = await Api.GetInvoicesAsync();
+        try 
+        {
+            // Fetch real data (wrapped in try-catch for resilience if API is down during dev)
+            var projects = await Api.GetProjectsAsync();
+            var invoices = await Api.GetInvoicesAsync();
 
-        _activeProjects = projects.Count(p => p.Status == ProjectStatus.InProgress);
-        _pendingInvoices = invoices.Count(i => i.Status == InvoiceStatus.Sent); // Assuming Sent is pending
-        _totalRevenue = invoices.Sum(i => i.TotalAmount);
+            _activeProjects = projects.Count(p => p.Status == ProjectStatus.InProgress);
+            _pendingInvoices = invoices.Count(i => i.Status == InvoiceStatus.Sent);
+            _totalRevenue = invoices.Sum(i => i.TotalAmount);
+            
+            // Re-calc chart data based on real (or mock if 0)
+             _projectStatusData = new List<StatusItem>
+            {
+                new() { Status = "Active", Count = _activeProjects > 0 ? _activeProjects : 5 },
+                new() { Status = "Completed", Count = projects.Count(p => p.Status == ProjectStatus.Completed) > 0 ? projects.Count(p => p.Status == ProjectStatus.Completed) : 8 },
+                new() { Status = "On Hold", Count = 2 }
+            };
+        }
+        catch
+        {
+            // Fallback for demo
+             _projectStatusData = new List<StatusItem> { new() { Status = "Active", Count = 5 } };
+        }
 
-        // Mock chart data for visualization (since db is likely empty)
+        // Mock chart timeline
         _revenueData = new List<RevenueItem>
         {
             new() { Date = "Jan", Amount = 15000 },
@@ -91,13 +123,6 @@
             new() { Date = "Apr", Amount = 35000 },
             new() { Date = "May", Amount = 28000 },
             new() { Date = "Jun", Amount = _totalRevenue > 0 ? _totalRevenue : 42000 }
-        };
-
-        _projectStatusData = new List<StatusItem>
-        {
-            new() { Status = "Active", Count = _activeProjects > 0 ? _activeProjects : 5 },
-            new() { Status = "Completed", Count = projects.Count(p => p.Status == ProjectStatus.Completed) > 0 ? projects.Count(p => p.Status == ProjectStatus.Completed) : 12 },
-            new() { Status = "On Hold", Count = 3 }
         };
     }
 }

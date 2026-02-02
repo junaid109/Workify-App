@@ -1,26 +1,41 @@
 ﻿@inherits LayoutComponentBase
+@using Radzen
+@using Radzen.Blazor
 
-<RadzenComponents />
-
-<div class="page text-white" style="background-color: #121212;">
-    <div class="sidebar" style="background-color: #1e1e1e;">
+<div class="wf-layout">
+    <!-- SIDEBAR -->
+    <div class="wf-sidebar">
+        <div class="wf-brand">
+            <div class="logo-icon"></div>
+            Workify MS
+        </div>
+        
         <NavMenu />
+        
+        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div class="wf-nav-item">
+                <i class="material-icons">help_outline</i> Support
+            </div>
+            <div class="wf-nav-item">
+               <i class="material-icons">account_circle</i> Profile
+            </div>
+        </div>
     </div>
 
-    <main>
-        <div class="top-row px-4" style="background-color: #1e1e1e; border-bottom: 1px solid #333;">
-            <span class="navbar-text text-white">Workify - Enterprise ERP</span>
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank" class="text-white-50 ms-md-auto">Docs</a>
+    <!-- HEADER -->
+    <div class="wf-header">
+        <h3 style="margin:0; font-weight: 600;">My Workspace</h3>
+        
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <input type="text" placeholder="Search..." style="background:var(--wf-bg); border:none; padding: 0.5rem 1rem; border-radius: 20px; outline:none;" />
+            <button class="btn btn-primary" style="border-radius:50%; width: 40px; height: 40px; padding:0; display:flex; align-items:center; justify-content:center;">+</button>
         </div>
+    </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+    <!-- BODY -->
+    <div class="wf-body">
+        @Body
+    </div>
 </div>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
+<RadzenComponents />

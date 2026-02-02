@@ -1,37 +1,23 @@
-﻿<div class="top-row ps-3 navbar navbar-dark bg-dark border-bottom border-secondary">
-    <div class="container-fluid">
-        <a class="navbar-brand text-light" href="">
-            <RadzenIcon Icon="grid_view" Style="vertical-align: middle; margin-right: 8px;" /> Workify
-        </a>
-    </div>
-</div>
-
-<div class="nav-scrollable bg-dark">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link text-light" href="" Match="NavLinkMatch.All">
-                <RadzenIcon Icon="dashboard" Style="margin-right: 8px;" /> Dashboard
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link text-light" href="projects">
-                <RadzenIcon Icon="assignment" Style="margin-right: 8px;" /> Projects (Kanban)
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link text-light" href="clients">
-                <RadzenIcon Icon="people" Style="margin-right: 8px;" /> Clients
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link text-light" href="invoices">
-                <RadzenIcon Icon="receipt" Style="margin-right: 8px;" /> Invoices
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link text-light" href="chat">
-                <RadzenIcon Icon="smart_toy" Style="margin-right: 8px;" /> AI Analyst
-            </NavLink>
-        </div>
-    </nav>
-</div>
+﻿<nav style="display: flex; flex-direction: column; gap: 0.5rem;">
+    <NavLink class="wf-nav-item" href="" Match="NavLinkMatch.All">
+        <i class="material-icons">dashboard</i> Dashboard
+    </NavLink>
+    
+    <NavLink class="wf-nav-item" href="projects">
+        <i class="material-icons">assignment</i> Projects
+    </NavLink>
+    
+    <NavLink class="wf-nav-item" href="clients">
+        <i class="material-icons">people</i> Clients
+    </NavLink>
+    
+    <NavLink class="wf-nav-item" href="invoices">
+        <i class="material-icons">receipt</i> Invoices
+    </NavLink>
+    
+    <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 0.5rem 0;"></div>
+    
+    <NavLink class="wf-nav-item" href="chat" style="color: var(--wf-purple); background: rgba(162, 93, 220, 0.1);">
+        <i class="material-icons">smart_toy</i> AI Analyst
+    </NavLink>
+</nav>
